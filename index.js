@@ -15,7 +15,7 @@ const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 
 // const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.swu9d.mongodb.net/?retryWrites=true&w=majority`;
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.ydmxw3q.mongodb.net/?retryWrites=true&w=majority`;
-
+// const uri = `mongodb://127.0.0.1:27017`;
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
   serverApi: {
@@ -249,6 +249,21 @@ async function run() {
       const deleteResult = await cartCollection.deleteMany(query);
 
       res.send({ paymentResult, deleteResult });
+    });
+    // stats or analytics
+    app.get("/admin-stats", async (req, res) => {
+      const users = await userCollection.estimatedDocumentCount();
+      const menuItem = await menuCollection.estimatedDocumentCount();
+      const orders = await paymentCollection.estimatedDocumentCount();
+      //this is not the best way
+      // const payments = await paymentCollection.find({ price: true }).toArray();
+      // const revenue = payments.reduce(
+      //   (total, payment) => total + payment.price,
+      //   0
+      // );
+      const result = await paymentCollection.aggregate([{}]);
+
+      res.send({ users, menuItem, orders, payments });
     });
 
     // Send a ping to confirm a successful connection
